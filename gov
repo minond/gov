@@ -4,6 +4,7 @@ set -eo pipefail
 
 VERSIONS=~/.gov/versions
 CURRENT=~/.gov/current
+BIN=~/.gov/bin
 GO=~/.gov/go
 
 #=== FUNCTION =================================================================
@@ -255,8 +256,25 @@ init() {
     info "located $VERSIONS"
   fi
 
+  if [ ! -d "$BIN" ]; then
+    info "creating $BIN"
+    mkdir -p "$BIN"
+  else
+    info "located $BIN"
+  fi
+
   info "touch $CURRENT"
   touch "$CURRENT"
+
+  info "make sure to add the following to your bashrc:"
+  echo
+
+  echo "    export GOROOT=$GO"
+  echo "    export GOBIN=$BIN"
+  echo
+  echo "    export PATH=\"\$PATH:\$GOROOT/bin\""
+  echo "    export PATH=\"\$PATH:\$GOBIN\""
+  echo
 }
 
 #=== FUNCTION =================================================================
