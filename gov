@@ -285,9 +285,9 @@ list-them() {
   local current=$(cat "$CURRENT")
   for version in 1.11.1 1.11 1.10.4 1.10.3 1.10.2 1.10.1 1.10 1.9.7 1.9.6 1.9.5 1.9.4 1.9.3 1.9.2; do
     if [ "$current" == "$version" ]; then
-      echo "  > $version"
+      echo "  * $version (current)"
     elif [ -d $(infer-file "$version" | as-local-version-file) ]; then
-      echo "  ~ $version"
+      echo "  * $version"
     else
       echo "    $version"
     fi
