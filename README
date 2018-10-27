@@ -1,1 +1,5 @@
 gov is a Golang version manager, similar to nvm/rbenv/etc.
+
+To get started, simply download the `gov` executable and add it to your path,
+then run `gov init`, which will set up the directory structure and display code
+that should be added to your bashrc file.
