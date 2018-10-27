@@ -309,11 +309,19 @@ Usage:
 
 The commands are:
 
+        help                show this help output
         init                initialize gov
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
         link <version>      link a specific version
         install <version>   download and list a specific version
+
+Environment variables:
+
+        \$VERSIONS          directory gov stores downloaded versions: ${VERSIONS/$HOME/~}
+        \$CURRENT           file containing current version string value: ${CURRENT/$HOME/~}
+        \$BIN               path to GOBIN directory that is only used in init command: ${BIN/$HOME/~}
+        \$GO                path to common and the currently linked version of Go: ${GO/$HOME/~}
 EOF
 }
 
@@ -324,7 +332,7 @@ main() {
   fi
 
   case "$1" in
-    -h|-help|--help) help; exit ;;
+    -h|-help|--help|help) help; exit ;;
 
     init) init ;;
     list) list-them ;;

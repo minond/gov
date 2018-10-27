@@ -1,5 +1,26 @@
-gov is a Golang version manager, similar to nvm/rbenv/etc.
+Gov is a tool for managing Go versions.
 
 To get started, simply download the `gov` executable and add it to your path,
 then run `gov init`, which will set up the directory structure and display code
 that should be added to your bashrc file.
+
+
+Usage:
+
+        gov <command> [arguments]
+
+The commands are:
+
+        help                show this help output
+        init                initialize gov
+        list                display a list of Go versions and their installation status
+        download <version>  download a specific version
+        link <version>      link a specific version
+        install <version>   download and list a specific version
+
+Environment variables:
+
+        $VERSIONS          directory gov stores downloaded versions: ~/.gov/versions
+        $CURRENT           file containing current version string value: ~/.gov/current
+        $BIN               path to GOBIN directory that is only used in init command: ~/.gov/bin
+        $GO                path to common and the currently linked version of Go: ~/.gov/go
