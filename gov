@@ -246,7 +246,7 @@ link-it() {
 
 #=== FUNCTION =================================================================
 #         NAME: init
-#  DESCRIPTION: Initialize gov
+#  DESCRIPTION: Initialize G.O.V.
 #==============================================================================
 init() {
   if [ ! -d "$VERSIONS" ]; then
@@ -268,7 +268,6 @@ init() {
 
   info "make sure to add the following to your bashrc:"
   echo
-
   echo "    export GOROOT=$GO"
   echo "    export GOBIN=$BIN"
   echo
@@ -301,7 +300,7 @@ list-them() {
 #==============================================================================
 help() {
   cat <<EOF
-Gov is a tool for managing Go versions.
+G.O.V. is a tool for managing Go versions.
 
 Usage:
 
@@ -310,7 +309,7 @@ Usage:
 The commands are:
 
         help                show this help output
-        init                initialize gov
+        init                initialize G.O.V.
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
         link <version>      link a specific version
@@ -318,7 +317,7 @@ The commands are:
 
 Environment variables:
 
-        \$VERSIONS          directory gov stores downloaded versions: ${VERSIONS/$HOME/~}
+        \$VERSIONS          directory G.O.V. stores downloaded versions: ${VERSIONS/$HOME/~}
         \$CURRENT           file containing current version string value: ${CURRENT/$HOME/~}
         \$BIN               path to GOBIN directory that is only used in init command: ${BIN/$HOME/~}
         \$GO                path to common and the currently linked version of Go: ${GO/$HOME/~}

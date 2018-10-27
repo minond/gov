@@ -1,4 +1,4 @@
-Gov is a tool for managing Go versions.
+G.O.V. is a tool for managing Go versions.
 
 To get started, simply download the `gov` executable and add it to your path,
 then run `gov init`, which will set up the directory structure and display code
@@ -12,7 +12,7 @@ Usage:
 The commands are:
 
         help                show this help output
-        init                initialize gov
+        init                initialize G.O.V.
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
         link <version>      link a specific version
@@ -20,7 +20,7 @@ The commands are:
 
 Environment variables:
 
-        $VERSIONS          directory gov stores downloaded versions: ~/.gov/versions
+        $VERSIONS          directory G.O.V. stores downloaded versions: ~/.gov/versions
         $CURRENT           file containing current version string value: ~/.gov/current
         $BIN               path to GOBIN directory that is only used in init command: ~/.gov/bin
         $GO                path to common and the currently linked version of Go: ~/.gov/go
