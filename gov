@@ -26,7 +26,6 @@ assert() {
 #         NAME: assert-system-requirements
 #  DESCRIPTION: Exists with an error when current system is not supported or a
 #               dependency is not installed.
-#         TODO: Check for dependencies.
 #==============================================================================
 assert-system-requirements() {
   local os=$(get-os)
