@@ -38,20 +38,9 @@ assert-system-requirements() {
   fi
 
   local has_missing=
-  local tmp_check_out=
 
   for dep in wget gunzip tar; do
-    tmp_check_out=$(
-      set +e
-      set +o pipefail
-
-      which "$dep" &> /dev/null
-      if [ "$?" -ne 0 ]; then
-        echo 1
-      fi
-    )
-
-    if [ ! -z "$(echo -n $tmp_check_out)" ]; then
+    if ! run-in-unsafe-subshell "which $dep"; then
       err "missing dependency: $dep"
       has_missing=1
     fi
@@ -60,6 +49,22 @@ assert-system-requirements() {
   if [ ! -z "$has_missing" ]; then
     exit 1
   fi
+}
+
+#=== FUNCTION =================================================================
+#         NAME: run-in-unsafe-subshell
+#  DESCRIPTION: Run a command in a subshell with error reporting disabled.
+#  PARAMETER *: Command and arguments.
+#==============================================================================
+run-in-unsafe-subshell() {
+  return $(
+    set +e
+    set +o pipefail
+
+    $@ &> /dev/null
+
+    echo $?
+  )
 }
 
 #=== FUNCTION =================================================================
