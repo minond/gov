@@ -327,7 +327,7 @@ EOF
 main() {
   if [ -z "$1" ]; then
     help
-    exit
+    exit 1
   fi
 
   case "$1" in
