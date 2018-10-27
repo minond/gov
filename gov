@@ -2,10 +2,10 @@
 
 set -eo pipefail
 
-VERSIONS=~/.gov/versions
-CURRENT=~/.gov/current
-BIN=~/.gov/bin
-GO=~/.gov/go
+[ -z "$VERSIONS" ] && VERSIONS=~/.gov/versions
+[ -z "$CURRENT" ] && CURRENT=~/.gov/current
+[ -z "$BIN" ] && BIN=~/.gov/bin
+[ -z "$GO" ] && GO=~/.gov/go
 
 #=== FUNCTION =================================================================
 #         NAME: assert
