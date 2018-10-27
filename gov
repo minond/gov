@@ -1,0 +1,290 @@
+#!/bin/bash
+
+set -eo pipefail
+
+VERSIONS=~/.gov/versions
+CURRENT=~/.gov/current
+GO=~/.gov/go
+
+#=== FUNCTION =================================================================
+#         NAME: assert
+#  DESCRIPTION: Exists with an error when an expected value is not set.
+#  PARAMETER 1: Field name/label. Included in error message.
+#  PARAMETER 2: Value to check.
+#==============================================================================
+assert() {
+  local label="$1"
+  local value="$2"
+
+  if [ -z "$value" ]; then
+    err "$label is required"
+    exit 1
+  fi
+}
+
+#=== FUNCTION =================================================================
+#         NAME: assert-system
+#  DESCRIPTION: Exists with an error when system is not currently supported.
+#==============================================================================
+assert-system() {
+  local os=$(get-os)
+  local arch=$(get-arch)
+
+  if [ -z "$os" ] || [ -z "$arch" ]; then
+    err "unsupported os/arch: $OSTYPE/$(uname -m)."
+    exit 1
+  fi
+}
+
+#=== FUNCTION =================================================================
+#         NAME: arg-or-else-read
+#  DESCRIPTION: Returns a given argument and if it is not set reads from stdin.
+#  PARAMETER 1: Optional argument value.
+#==============================================================================
+arg-or-else-read() {
+  if [ ! -z "$1" ]; then
+    echo "$1"
+  else
+    read arg
+    echo "$arg"
+  fi
+}
+
+#=== FUNCTION =================================================================
+#         NAME: info
+#  DESCRIPTION: Print a message.
+#  PARAMETER 1: Info message.
+#==============================================================================
+info() {
+  local msg="$1"
+  echo "info: $msg"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: err
+#  DESCRIPTION: Print an error message.
+#  PARAMETER 1: Error message.
+#==============================================================================
+err() {
+  local msg="$1"
+  echo "error: $msg"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: get-os
+#  DESCRIPTION: Prints best guess for the current operating system.
+#==============================================================================
+get-os() {
+  case "$OSTYPE" in
+    linux*) echo linux ;;
+    darwin*) echo darwin ;;
+  esac
+}
+
+#=== FUNCTION =================================================================
+#         NAME: get-arch
+#  DESCRIPTION: Prints best guess for the current architecture.
+#==============================================================================
+get-arch() {
+  case `uname -m` in
+    x86_64) echo amd64 ;;
+  esac
+}
+
+#=== FUNCTION =================================================================
+#         NAME: infer-file
+#  DESCRIPTION: Prints the file name with version and system info.
+#  PARAMETER 1: Golang version.
+#==============================================================================
+infer-file() {
+  local version="$1"
+  get-file "$version" "$(get-os)" "$(get-arch)"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: get-file
+#  DESCRIPTION: Prints the file name with version and system info.
+#  PARAMETER 1: Golang version.
+#  PARAMETER 2: OS from get-os.
+#  PARAMETER 3: Architecture from get-arch.
+#==============================================================================
+get-file() {
+  local version="$1"
+  local os="$2"
+  local arch="$3"
+  echo "go${version}.${os}-${arch}"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: as-tar-file
+#  DESCRIPTION: Prints the .tar file name
+#  PARAMETER 1: File name
+#==============================================================================
+as-tar-file() {
+  local file=$(arg-or-else-read "$1")
+  echo "$file.tar"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: as-tar-gz-file
+#  DESCRIPTION: Prints the .tar.gz file name
+#  PARAMETER 1: File name
+#==============================================================================
+as-tar-gz-file() {
+  local file=$(arg-or-else-read "$1")
+  echo "$(as-tar-file $file).gz"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: as-local-version-file
+#  DESCRIPTION: Prints the path to a local version file
+#  PARAMETER 1: File name
+#==============================================================================
+as-local-version-file() {
+  local file=$(arg-or-else-read "$1")
+  echo "$VERSIONS/$file"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: as-download-url
+#  DESCRIPTION: Prints the .tar.gz download URL
+#  PARAMETER 1: File name to download
+#==============================================================================
+as-download-url() {
+  local file=$(arg-or-else-read "$1")
+  echo "https://dl.google.com/go/$(as-tar-gz-file $file)"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: download-it
+#  DESCRIPTION: Download a Golang distribution.
+#  PARAMETER 1: Golang version.
+#==============================================================================
+download-it() {
+  local version="$1"
+
+  local file=$(infer-file "$version")
+  local tar_file=$(as-tar-file "$file")
+  local tar_gz_file=$(as-tar-gz-file "$file")
+  local local_file=$(as-local-version-file "$file")
+  local url=$(as-download-url "$file")
+
+  if [ -d "$local_file" ]; then
+    info "version $version has already been downloaded"
+    return
+  fi
+
+  info "downloading $version for $os/$arch"
+  [ -f "$tar_gz_file" ] && rm "$tar_gz_file"
+  info "$url"
+  wget --quiet "$url"
+
+  info "gunzip $tar_gz_file"
+  [ -f "$tar_file" ] && rm "$tar_file"
+  gunzip "$tar_gz_file"
+
+  info "untar $tar_file to $local_file"
+  [ -d go ] && rm -r go
+  tar -xf "$tar_file"
+  mv go "$local_file"
+
+  info "cleaning up"
+  rm "$tar_file"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: link-it
+#  DESCRIPTION: Link a downloaded version of Golang
+#  PARAMETER 1: Golang version.
+#==============================================================================
+link-it() {
+  local version="$1"
+
+  local local_file=$(infer-file "$version" | as-local-version-file)
+
+  if [ ! -d "$local_file" ]; then
+    err "version $version needs to be downloaded before it can linked"
+    exit 1
+  fi
+
+  info "linking $version from $local_file"
+  [ -d "$GO" ] && rm -r "$GO"
+  ln -s "$local_file" "$GO"
+  echo "$version" > "$CURRENT"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: init
+#  DESCRIPTION: Initialize gov
+#==============================================================================
+init() {
+  if [ ! -d "$VERSIONS" ]; then
+    info "creating $VERSIONS"
+    mkdir -p "$VERSIONS"
+  else
+    info "located $VERSIONS"
+  fi
+
+  info "touch $CURRENT"
+  touch "$CURRENT"
+}
+
+#=== FUNCTION =================================================================
+#         NAME: list-them
+#  DESCRIPTION: Display a list of Go versions and their installation status.
+#         TODO: Don't hardcode versions.
+#==============================================================================
+list-them() {
+  current=$(cat "$CURRENT")
+  for version in 1.11.1 1.11 1.10.4 1.10.3 1.10.2 1.10.1 1.10 1.9.7 1.9.6 1.9.5 1.9.4 1.9.3 1.9.2; do
+    if [ "$current" == "$version" ]; then
+      echo "  > $version"
+    else
+      echo "    $version"
+    fi
+  done
+}
+
+#=== FUNCTION =================================================================
+#         NAME: help
+#  DESCRIPTION: Show help information.
+#==============================================================================
+help() {
+  cat <<EOF
+Gov is a tool for managing Go versions.
+
+Usage:
+
+        gov <command> [arguments]
+
+The commands are:
+
+        init                initialize gov
+        list                display a list of Go versions and their installation status
+        download <version>  download a specific version
+        link <version>      link a specific version
+        install <version>   download and list a specific version
+EOF
+}
+
+main() {
+  assert-system
+
+  if [ -z "$1" ]; then
+    help
+    exit
+  fi
+
+  case "$1" in
+    -h|-help|--help) help; exit ;;
+
+    init) init ;;
+    list) list-them ;;
+
+    download) shift; assert version "$1"; download-it "$1" ;;
+    link)     shift; assert version "$1"; link-it "$1" ;;
+    install)  shift; assert version "$1"; download-it "$1"; link-it "$1" ;;
+  esac
+}
+
+main "$1" "$2"
