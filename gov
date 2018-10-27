@@ -205,7 +205,7 @@ download-it() {
     return
   fi
 
-  info "downloading $version for $os/$arch"
+  info "downloading $version for $(get-os)/$(get-arch)"
   [ -f "$tar_gz_file" ] && rm "$tar_gz_file"
   info "$url"
   wget --quiet "$url"
