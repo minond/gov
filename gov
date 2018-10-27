@@ -23,10 +23,12 @@ assert() {
 }
 
 #=== FUNCTION =================================================================
-#         NAME: assert-system
-#  DESCRIPTION: Exists with an error when system is not currently supported.
+#         NAME: assert-system-requirements
+#  DESCRIPTION: Exists with an error when current system is not supported or a
+#               dependency is not installed.
+#         TODO: Check for dependencies.
 #==============================================================================
-assert-system() {
+assert-system-requirements() {
   local os=$(get-os)
   local arch=$(get-arch)
 
@@ -235,7 +237,7 @@ init() {
 #         TODO: Don't hardcode versions.
 #==============================================================================
 list-them() {
-  current=$(cat "$CURRENT")
+  local current=$(cat "$CURRENT")
   for version in 1.11.1 1.11 1.10.4 1.10.3 1.10.2 1.10.1 1.10 1.9.7 1.9.6 1.9.5 1.9.4 1.9.3 1.9.2; do
     if [ "$current" == "$version" ]; then
       echo "  > $version"
@@ -268,8 +270,6 @@ EOF
 }
 
 main() {
-  assert-system
-
   if [ -z "$1" ]; then
     help
     exit
@@ -287,4 +287,5 @@ main() {
   esac
 }
 
+assert-system-requirements
 main "$1" "$2"
