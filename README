@@ -1,7 +1,7 @@
 G.O.V. is a tool for managing Go versions.
 
-To get started, simply download the `gov` executable and add it to your path,
-then run `gov init`, which will set up the directory structure and display code
+To get started, first download the `gov` executable and add it to your path
+then run `gov init`. This will set up the directory structure and display code
 that should be added to your bashrc file.
 
 
