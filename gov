@@ -268,8 +268,8 @@ init() {
 
   info "make sure to add the following to your bashrc:"
   echo
-  echo "    export GOROOT=$GO"
-  echo "    export GOBIN=$BIN"
+  echo "    export GOROOT=\"${GO/$HOME/\$HOME}\""
+  echo "    export GOBIN=\"${BIN/$HOME/\$HOME}\""
   echo
   echo "    export PATH=\"\$PATH:\$GOROOT/bin\""
   echo "    export PATH=\"\$PATH:\$GOBIN\""
