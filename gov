@@ -2,10 +2,32 @@
 
 set -eo pipefail
 
+#=== ENVVARS ==================================================================
+#      VERSIONS: Directory G.O.V. stores downloaded versions.
+#       CURRENT: File containing current version string value.
+# KNOWN_VERSION: File containing all versions used in list command.
+#           BIN: Path to GOBIN directory that is only used in init command.
+#            GO: Path to common and the currently linked version of Go.
+#==============================================================================
 [ -z "$VERSIONS" ] && VERSIONS=~/.gov/versions
 [ -z "$CURRENT" ] && CURRENT=~/.gov/current
+[ -z "$KNOWN_VERSION" ] && KNOWN_VERSION=~/.gov/known-versions
 [ -z "$BIN" ] && BIN=~/.gov/bin
 [ -z "$GO" ] && GO=~/.gov/go
+
+#=== GLOBAL ===================================================================
+#         NAME: KNOWN_VERSIONS
+#  DESCRIPTION: Temporary solution for adding new known versions to G.O.V. On
+#               init, a known-versions file is created and populated with the
+#               versions below. Users (or G.O.V.) could update this instead of
+#               gov executable when new releases are available.
+#         TODO: Don't hardcode versions.
+#==============================================================================
+KNOWN_VERSIONS=(
+  1.11.2 1.11.1 1.11
+  1.10.5 1.10.4 1.10.3 1.10.2 1.10.1 1.10
+  1.9.7 1.9.6 1.9.5 1.9.4 1.9.3 1.9.2
+)
 
 #=== FUNCTION =================================================================
 #         NAME: assert
@@ -266,6 +288,15 @@ init() {
   info "touch $CURRENT"
   touch "$CURRENT"
 
+  info "touch $KNOWN_VERSION"
+  if [ ! -f "$KNOWN_VERSION" ]; then
+    info "populating $KNOWN_VERSION"
+    touch "$KNOWN_VERSION"
+    for v in ${KNOWN_VERSIONS[@]}; do
+      echo $v >> "$KNOWN_VERSION"
+    done
+  fi
+
   info "make sure to add the following to your bashrc:"
   echo
   echo "    export GOROOT=\"${GO/$HOME/\$HOME}\""
@@ -279,11 +310,12 @@ init() {
 #=== FUNCTION =================================================================
 #         NAME: list-them
 #  DESCRIPTION: Display a list of Go versions and their installation status.
-#         TODO: Don't hardcode versions.
 #==============================================================================
 list-them() {
   local current=$(cat "$CURRENT")
-  for version in 1.11.1 1.11 1.10.4 1.10.3 1.10.2 1.10.1 1.10 1.9.7 1.9.6 1.9.5 1.9.4 1.9.3 1.9.2; do
+  local known_versions=$(cat "$KNOWN_VERSION")
+
+  for version in ${known_versions[@]}; do
     if [ "$current" == "$version" ]; then
       echo "  * $version (current)"
     elif [ -d $(infer-file "$version" | as-local-version-file) ]; then
@@ -327,6 +359,7 @@ Environment variables:
 
         \$VERSIONS          directory G.O.V. stores downloaded versions: ${VERSIONS/$HOME/~}
         \$CURRENT           file containing current version string value: ${CURRENT/$HOME/~}
+        \$KNOWN_VERSION     file containing all versions used in list command: ${KNOWN_VERSION/$HOME/~}
         \$BIN               path to GOBIN directory that is only used in init command: ${BIN/$HOME/~}
         \$GO                path to common and the currently linked version of Go: ${GO/$HOME/~}
 EOF

@@ -22,5 +22,6 @@ Environment variables:
 
         $VERSIONS          directory G.O.V. stores downloaded versions: ~/.gov/versions
         $CURRENT           file containing current version string value: ~/.gov/current
+        $KNOWN_VERSION     file containing all versions used in list command: ~/.gov/known-versions
         $BIN               path to GOBIN directory that is only used in init command: ~/.gov/bin
         $GO                path to common and the currently linked version of Go: ~/.gov/go
