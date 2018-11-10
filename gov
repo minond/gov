@@ -246,11 +246,11 @@ download-it() {
 }
 
 #=== FUNCTION =================================================================
-#         NAME: link-it
+#         NAME: globally-link-it
 #  DESCRIPTION: Link a downloaded version of Golang
 #  PARAMETER 1: Golang version.
 #==============================================================================
-link-it() {
+globally-link-it() {
   local version="$1"
 
   local local_file=$(infer-file "$version" | as-local-version-file)
@@ -352,7 +352,7 @@ The commands are:
         init                initialize G.O.V.
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
-        link <version>      download and link a specific version
+        global <version>    download and globally link a specific version
 
 Environment variables:
 
@@ -377,7 +377,7 @@ main() {
     list) list-them ;;
 
     download) shift; assert version "$1"; download-it "$1" ;;
-    link)     shift; assert version "$1"; download-it "$1"; link-it "$1" ;;
+    global)   shift; assert version "$1"; download-it "$1"; globally-link-it "$1" ;;
 
     *) err "invalid command: $1"; help; exit ;;
   esac

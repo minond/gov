@@ -15,7 +15,7 @@ The commands are:
         init                initialize G.O.V.
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
-        link <version>      download and link a specific version
+        global <version>    download and globally link a specific version
 
 Environment variables:
 
