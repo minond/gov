@@ -223,7 +223,7 @@ download-it() {
   local url=$(as-download-url "$file")
 
   if [ -d "$local_file" ]; then
-    info "version $version has already been downloaded"
+    info "located version $version in $VERSIONS"
     return
   fi
 
@@ -352,8 +352,7 @@ The commands are:
         init                initialize G.O.V.
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
-        link <version>      link a specific version
-        install <version>   download and list a specific version
+        link <version>      download and link a specific version
 
 Environment variables:
 
@@ -378,8 +377,7 @@ main() {
     list) list-them ;;
 
     download) shift; assert version "$1"; download-it "$1" ;;
-    link)     shift; assert version "$1"; link-it "$1" ;;
-    install)  shift; assert version "$1"; download-it "$1"; link-it "$1" ;;
+    link)     shift; assert version "$1"; download-it "$1"; link-it "$1" ;;
 
     *) err "invalid command: $1"; help; exit ;;
   esac
