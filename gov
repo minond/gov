@@ -371,15 +371,15 @@ main() {
   fi
 
   case "$1" in
-    -h|-help|--help|help) help 1; exit ;;
+  -h|-help|--help|help) help 1; exit ;;
 
-    init) init ;;
-    list) list-them ;;
+  init) init ;;
+  list) list-them ;;
 
-    download) shift; assert version "$1"; download-it "$1" ;;
-    global)   shift; assert version "$1"; download-it "$1"; globally-link-it "$1" ;;
+  download) shift; assert version "$1"; download-it "$1" ;;
+  global)   shift; assert version "$1"; download-it "$1"; globally-link-it "$1" ;;
 
-    *) err "invalid command: $1"; help; exit ;;
+  *) err "invalid command: $1"; help; exit ;;
   esac
 }
 
