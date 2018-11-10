@@ -297,11 +297,19 @@ list-them() {
 #=== FUNCTION =================================================================
 #         NAME: help
 #  DESCRIPTION: Show help information.
+#  PARAMETER 1: Include header
 #==============================================================================
 help() {
+  local header="$1"
+
+  if [ ! -z "$header" ]; then
   cat <<EOF
 G.O.V. is a tool for managing Go versions.
 
+EOF
+  fi
+
+  cat <<EOF
 Usage:
 
         gov <command> [arguments]
@@ -326,12 +334,12 @@ EOF
 
 main() {
   if [ -z "$1" ]; then
-    help
+    help 1
     exit 1
   fi
 
   case "$1" in
-    -h|-help|--help|help) help; exit ;;
+    -h|-help|--help|help) help 1; exit ;;
 
     init) init ;;
     list) list-them ;;
@@ -339,6 +347,8 @@ main() {
     download) shift; assert version "$1"; download-it "$1" ;;
     link)     shift; assert version "$1"; link-it "$1" ;;
     install)  shift; assert version "$1"; download-it "$1"; link-it "$1" ;;
+
+    *) err "invalid command: $1"; help; exit ;;
   esac
 }
 
