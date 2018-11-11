@@ -3,15 +3,15 @@
 set -eo pipefail
 
 #=== ENVVARS ==================================================================
-#           GOV: Path to G.O.V. root directory.
-#           BIN: Path to GOBIN directory that is only used in init command.
-#            GO: Path to common and the currently linked version of Go.
+#          GOV: Path to G.O.V. root directory.
+#          BIN: Path to GOBIN directory that is only used in init command.
+#           GO: Path to common and the currently linked version of Go.
 #==============================================================================
 [ -z "$GOV" ] && GOV=~/.gov
 [ -z "$BIN" ] && BIN="$GOV/bin"
 [ -z "$GO" ] && GO="$GOV/go"
 
-#=== GLOBAL ===================================================================
+#=== GLOBALS ==================================================================
 #      VERSIONS: Directory G.O.V. stores downloaded versions.
 #       CURRENT: File containing current version string value.
 # KNOWN_VERSION: File containing all versions used in list command.
