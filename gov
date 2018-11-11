@@ -1,15 +1,15 @@
 #!/bin/bash
 
-set -eo pipefail
+[[ "$0" != -* ]] && set -euo pipefail
 
 #=== ENVVARS ==================================================================
 #          GOV: Path to G.O.V. root directory.
 #          BIN: Path to GOBIN directory that is only used in init command.
 #           GO: Path to common and the currently linked version of Go.
 #==============================================================================
-[ -z "$GOV" ] && GOV=~/.gov
-[ -z "$BIN" ] && BIN="$GOV/bin"
-[ -z "$GO" ] && GO="$GOV/go"
+GOV=${GOV:-~/.gov}
+BIN=${BIN:-$GOV/bin}
+GO=${GO:-$GOV/go}
 
 #=== GLOBALS ==================================================================
 #      VERSIONS: Directory G.O.V. stores downloaded versions.
@@ -41,8 +41,8 @@ KNOWN_VERSIONS=(
 #  PARAMETER 2: Value to check.
 #==============================================================================
 assert() {
-  local label="$1"
-  local value="$2"
+  local label="${1:-}"
+  local value="${2:-}"
 
   if [ -z "$value" ]; then
     err "$label is required"
@@ -368,7 +368,7 @@ EOF
 }
 
 main() {
-  if [ -z "$1" ]; then
+  if [ -z "${1:-}" ]; then
     help 1
     exit 1
   fi
@@ -387,4 +387,4 @@ main() {
 }
 
 assert-system-requirements
-main "$1" "$2"
+main $*
