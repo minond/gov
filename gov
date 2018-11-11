@@ -3,17 +3,22 @@
 set -eo pipefail
 
 #=== ENVVARS ==================================================================
-#      VERSIONS: Directory G.O.V. stores downloaded versions.
-#       CURRENT: File containing current version string value.
-# KNOWN_VERSION: File containing all versions used in list command.
+#           GOV: Path to G.O.V. root directory.
 #           BIN: Path to GOBIN directory that is only used in init command.
 #            GO: Path to common and the currently linked version of Go.
 #==============================================================================
-[ -z "$VERSIONS" ] && VERSIONS=~/.gov/versions
-[ -z "$CURRENT" ] && CURRENT=~/.gov/current
-[ -z "$KNOWN_VERSION" ] && KNOWN_VERSION=~/.gov/known-versions
-[ -z "$BIN" ] && BIN=~/.gov/bin
-[ -z "$GO" ] && GO=~/.gov/go
+[ -z "$GOV" ] && GOV=~/.gov
+[ -z "$BIN" ] && BIN="$GOV/bin"
+[ -z "$GO" ] && GO="$GOV/go"
+
+#=== GLOBAL ===================================================================
+#      VERSIONS: Directory G.O.V. stores downloaded versions.
+#       CURRENT: File containing current version string value.
+# KNOWN_VERSION: File containing all versions used in list command.
+#==============================================================================
+VERSIONS="$GOV/versions"
+CURRENT="$GOV/current"
+KNOWN_VERSION="$GOV/known-versions"
 
 #=== GLOBAL ===================================================================
 #         NAME: KNOWN_VERSIONS
@@ -356,9 +361,7 @@ The commands are:
 
 Environment variables:
 
-        \$VERSIONS          directory G.O.V. stores downloaded versions: ${VERSIONS/$HOME/~}
-        \$CURRENT           file containing current version string value: ${CURRENT/$HOME/~}
-        \$KNOWN_VERSION     file containing all versions used in list command: ${KNOWN_VERSION/$HOME/~}
+        \$GOV               path to G.O.V. root directory: ${GOV/$HOME/~}
         \$BIN               path to GOBIN directory that is only used in init command: ${BIN/$HOME/~}
         \$GO                path to common and the currently linked version of Go: ${GO/$HOME/~}
 EOF
