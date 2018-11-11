@@ -357,7 +357,7 @@ The commands are:
         init                initialize G.O.V.
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
-        global <version>    download and globally link a specific version
+        use <version>       download and globally link a specific version
 
 Environment variables:
 
@@ -380,7 +380,7 @@ main() {
   list) list-them ;;
 
   download) shift; assert version "$1"; download-it "$1" ;;
-  global)   shift; assert version "$1"; download-it "$1"; globally-link-it "$1" ;;
+  use)      shift; assert version "$1"; download-it "$1"; globally-link-it "$1" ;;
 
   *) err "invalid command: $1"; help; exit ;;
   esac
