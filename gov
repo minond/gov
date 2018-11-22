@@ -199,7 +199,7 @@ as-tar-gz-file() {
 #  PARAMETER 1: File name
 #==============================================================================
 as-local-version-file() {
-  local file=$(arg-or-else-read "$1")
+  local file=$(arg-or-else-read "${1:-}")
   echo "$VERSIONS/$file"
 }
 
