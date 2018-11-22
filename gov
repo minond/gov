@@ -13,10 +13,14 @@ GO=${GO:-$GOV/go}
 
 #=== GLOBALS ==================================================================
 #      VERSIONS: Directory G.O.V. stores downloaded versions.
+#     DIR_LINKS: Directory G.O.V. links local versions.
+#  DIR_MAPPINGS: File containing maps between directories and go versions.
 #       CURRENT: File containing current version string value.
 # KNOWN_VERSION: File containing all versions used in list command.
 #==============================================================================
 VERSIONS="$GOV/versions"
+DIR_LINKS="$GOV/dir-links"
+DIR_MAPPINGS="$GOV/dir-mappings"
 CURRENT="$GOV/current"
 KNOWN_VERSION="$GOV/known-versions"
 
@@ -34,6 +38,16 @@ KNOWN_VERSIONS=(
   1.9.7 1.9.6 1.9.5 1.9.4 1.9.3 1.9.2
 )
 
+#=== GLOBAL ===================================================================
+#         NAME: IS_SUBSHELL
+#  DESCRIPTION: Am I running as source or in a subshell? 0 = no, 1 = yes.
+#==============================================================================
+if [[ "$0" == -* ]]; then
+  IS_SUBSHELL=0
+else
+  IS_SUBSHELL=1
+fi
+
 #=== FUNCTION =================================================================
 #         NAME: assert
 #  DESCRIPTION: Exists with an error when an expected value is not set.
@@ -46,6 +60,17 @@ assert() {
 
   if [ -z "$value" ]; then
     err "$label is required"
+    exit 1
+  fi
+}
+
+#=== FUNCTION =================================================================
+#         NAME: assert-sourced-execution
+#  DESCRIPTION: Exists with an error script is running in a subshell.
+#==============================================================================
+assert-sourced-execution() {
+  if [ "$IS_SUBSHELL" == "1" ]; then
+    err "this command expectes to be ran as a source script"
     exit 1
   fi
 }
@@ -204,6 +229,17 @@ as-local-version-file() {
 }
 
 #=== FUNCTION =================================================================
+#         NAME: as-local-version-dir-link
+#  DESCRIPTION: Prints the path to a local version link file
+#  PARAMETER 1: Full directory path
+#==============================================================================
+as-local-version-dir-link() {
+  local dir=$(arg-or-else-read "$1")
+  local clean=$(echo "$dir" | sed -e "s/\//_/g")
+  echo "$DIR_LINKS/$clean"
+}
+
+#=== FUNCTION =================================================================
 #         NAME: as-download-url
 #  DESCRIPTION: Prints the .tar.gz download URL
 #  PARAMETER 1: File name to download
@@ -251,6 +287,35 @@ download-it() {
 }
 
 #=== FUNCTION =================================================================
+#         NAME: link-it-to
+#  DESCRIPTION: Link a downloaded version of Golang but only for this directory
+#               and session.
+#  PARAMETER 1: Golang version.
+#  PARAMETER 2: Directory to map version to.
+#==============================================================================
+link-it-to() {
+  local version="$1"
+  local dir="$2"
+
+  local local_file=$(infer-file "$version" | as-local-version-file)
+  local local_link=$(as-local-version-dir-link "$dir")
+
+  if [ ! -d "$local_file" ]; then
+    err "version $version needs to be downloaded before it can linked"
+    exit 1
+  fi
+
+  if [ -d "$local_link" ]; then
+    rm -r "$local_link"
+  fi
+
+  info "linking $version from $local_file to $dir"
+  ln -s "$local_file" "$local_link"
+  info "updating mapping configuration"
+  echo "$dir $version" >> "$DIR_MAPPINGS"
+}
+
+#=== FUNCTION =================================================================
 #         NAME: globally-link-it
 #  DESCRIPTION: Link a downloaded version of Golang
 #  PARAMETER 1: Golang version.
@@ -290,8 +355,18 @@ init() {
     info "located $BIN"
   fi
 
+  if [ ! -d "$DIR_LINKS" ]; then
+    info "creating $DIR_LINKS"
+    mkdir -p "$DIR_LINKS"
+  else
+    info "located $DIR_LINKS"
+  fi
+
   info "touch $CURRENT"
   touch "$CURRENT"
+
+  info "touch $DIR_MAPPINGS"
+  touch "$DIR_MAPPINGS"
 
   info "touch $KNOWN_VERSION"
   if [ ! -f "$KNOWN_VERSION" ]; then
@@ -358,6 +433,7 @@ The commands are:
         list                display a list of Go versions and their installation status
         download <version>  download a specific version
         use <version>       download and globally link a specific version
+        local <version>     download and locally link a specific version
 
 Environment variables:
 
@@ -381,6 +457,7 @@ main() {
 
   download) shift; assert version "$1"; download-it "$1" ;;
   use)      shift; assert version "$1"; download-it "$1"; globally-link-it "$1" ;;
+  local)    shift; assert-sourced-execution; assert version "$1"; download-it "$1"; link-it-to "$1" $(pwd) ;;
 
   *) err "invalid command: $1"; help; exit ;;
   esac
