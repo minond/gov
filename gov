@@ -1,6 +1,8 @@
 #!/bin/bash
+#
+# G.O.V. is a tool for managing Go versions.
 
-[[ "$0" != -* ]] && set -euo pipefail
+set -euo pipefail
 
 #=== ENVVARS ==================================================================
 #          GOV: Path to G.O.V. root directory.
@@ -100,7 +102,7 @@ run-in-unsafe-subshell() {
 #  PARAMETER 1: Optional argument value.
 #==============================================================================
 arg-or-else-read() {
-  if [ ! -z "$1" ]; then
+  if [ ! -z "${1:-}" ]; then
     echo "$1"
   else
     read arg
@@ -114,7 +116,7 @@ arg-or-else-read() {
 #  PARAMETER 1: Info message.
 #==============================================================================
 info() {
-  local msg="$1"
+  local msg="${1:-}"
   echo "info: $msg"
 }
 
@@ -124,7 +126,7 @@ info() {
 #  PARAMETER 1: Error message.
 #==============================================================================
 err() {
-  local msg="$1"
+  local msg="${1:-}"
   echo "error: $msg"
 }
 
@@ -155,7 +157,7 @@ get-arch() {
 #  PARAMETER 1: Golang version.
 #==============================================================================
 infer-file() {
-  local version="$1"
+  local version="${1:-}"
   get-file "$version" "$(get-os)" "$(get-arch)"
 }
 
@@ -167,7 +169,7 @@ infer-file() {
 #  PARAMETER 3: Architecture from get-arch.
 #==============================================================================
 get-file() {
-  local version="$1"
+  local version="${1:-}"
   local os="$2"
   local arch="$3"
   echo "go${version}.${os}-${arch}"
@@ -179,7 +181,7 @@ get-file() {
 #  PARAMETER 1: File name
 #==============================================================================
 as-tar-file() {
-  local file=$(arg-or-else-read "$1")
+  local file=$(arg-or-else-read "${1:-}")
   echo "$file.tar"
 }
 
@@ -189,7 +191,7 @@ as-tar-file() {
 #  PARAMETER 1: File name
 #==============================================================================
 as-tar-gz-file() {
-  local file=$(arg-or-else-read "$1")
+  local file=$(arg-or-else-read "${1:-}")
   echo "$(as-tar-file $file).gz"
 }
 
@@ -209,7 +211,7 @@ as-local-version-file() {
 #  PARAMETER 1: File name to download
 #==============================================================================
 as-download-url() {
-  local file=$(arg-or-else-read "$1")
+  local file=$(arg-or-else-read "${1:-}")
   echo "https://dl.google.com/go/$(as-tar-gz-file $file)"
 }
 
@@ -219,7 +221,7 @@ as-download-url() {
 #  PARAMETER 1: Golang version.
 #==============================================================================
 download-it() {
-  local version="$1"
+  local version="${1:-}"
 
   local file=$(infer-file "$version")
   local tar_file=$(as-tar-file "$file")
@@ -256,7 +258,7 @@ download-it() {
 #  PARAMETER 1: Golang version.
 #==============================================================================
 globally-link-it() {
-  local version="$1"
+  local version="${1:-}"
 
   local local_file=$(infer-file "$version" | as-local-version-file)
 
@@ -337,7 +339,7 @@ list-them() {
 #  PARAMETER 1: Include header
 #==============================================================================
 help() {
-  local header="$1"
+  local header="${1:-}"
 
   if [ ! -z "$header" ]; then
   cat <<EOF
