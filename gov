@@ -148,8 +148,10 @@ get-os() {
 #  DESCRIPTION: Prints best guess for the current architecture.
 #==============================================================================
 get-arch() {
-  case `uname -m` in
+  local arch=$(uname -m)
+  case "$arch" in
     x86_64) echo amd64 ;;
+    *) echo "$arch" ;;
   esac
 }
 
